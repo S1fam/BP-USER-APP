@@ -1,0 +1,47 @@
+{
+  "type": "HZA",
+  "n": 2,
+  "Q": ["s", "q", "p", "f"],
+  "Sigma": ["a", "b", "c"],
+  "Gamma": ["A", "S", "#"],
+  "s": "s",
+  "S": "S",
+  "F": ["f"],
+  "rules": [
+    {
+      "from": "s",
+      "depth": 1,
+      "expand-from": ["S"],
+      "expand-to": ["AA"],
+      "to": "q"
+    },
+    {
+      "from": "q",
+      "depth": 1,
+      "expand-from": ["A"],
+      "expand-to": ["aAb"],
+      "to": "p"
+    },
+    {
+      "from": "q",
+      "depth": 1,
+      "expand-from": ["A"],
+      "expand-to": ["ab"],
+      "to": "f"
+    },
+    {
+      "from": "p",
+      "depth": 2,
+      "expand-from": ["A"],
+      "expand-to": ["Ac"],
+      "to": "q"
+    },
+    {
+      "from": "f",
+      "depth": 1,
+      "expand-from": ["A"],
+      "expand-to": ["c"],
+      "to": "f"
+    }
+  ]
+}
