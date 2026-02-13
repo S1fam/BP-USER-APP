@@ -1,5 +1,5 @@
 #pragma once
-#include "model/automaton.h"
+#include "automaton.h"
 #include <string>
 #include <vector>
 

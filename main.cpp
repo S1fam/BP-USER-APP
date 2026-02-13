@@ -1,11 +1,13 @@
-// Pro CLI parsing argumentu
-#include "parser/json_loader.h"
-#include "validator/automaton_validator.h"
+#include "json_loader.h"
+#include "input_parser.h"
+#include "automaton_validator.h"
+#include "input_validator.h"
+#include "bfs_simulator.h"
 #include <iostream>
 
 int main(int argc, char** argv) {
-    if (argc != 2) {
-        std::cerr << "Usage: automaton <file.json>\n";
+    if (argc != 3) {
+        std::cerr << "Usage: automaton <automaton.json> <input>\n";
         return 1;
     }
 
@@ -26,11 +28,19 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    std::cout << "Automaton loaded and validated successfully.\n";
+    auto input = parseInputWord(argv[2]);
 
-    // tady později:
-    // Simulator sim(automaton);
-    // sim.run();
+    auto inputCheck = InputValidator::validate(automaton, input);
+    if (!inputCheck.ok) {
+        std::cerr << "Invalid input word:\n";
+        for (const auto& e : inputCheck.errors) {
+            std::cerr << " - " << e << "\n";
+        }
+        return 1;
+    }
+
+    BFSSimulator sim(automaton, input);
+    sim.run();
 
     return 0;
 }

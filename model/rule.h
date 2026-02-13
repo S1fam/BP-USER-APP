@@ -7,7 +7,7 @@ struct Rule {
     std::string from; // vychozi stav
     std::string to; // novy stav
 
-    std::optional<std::string> input; // pouze pro VRCPHZA
+    std::optional<std::string> input; // vstup - pouze pro VRCPHZA
 
     // indexy hloubek prepisu (HZA: size = 1, CPHZA/VRCPHZA: size >= 1)
     std::vector<size_t> depths;

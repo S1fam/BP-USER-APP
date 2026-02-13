@@ -11,17 +11,17 @@ enum class AutomatonType {
 };
 
 struct Automaton {
-    AutomatonType type;
+    AutomatonType type; // typ automatu
 
     size_t n; // hloubka zasobniku
 
-    std::set<std::string> Q;
-    std::set<std::string> Sigma;
-    std::set<std::string> Gamma;
+    std::set<std::string> Q; // stavy
+    std::set<std::string> Sigma; // vstupni symboly
+    std::set<std::string> Gamma; // nevstupni symboly
 
-    std::string s;   // pro ulozeni pocatecniho stav
-    std::string S;   // pro ulozeni pocatecniho symbolu zasobniku
-    std::set<std::string> F;
+    std::string s; // pocatecni stav
+    std::string S; // pocatecni symbolu zasobniku
+    std::set<std::string> F; // koncove stavy
 
-    std::vector<Rule> rules;
+    std::vector<Rule> rules; // pravidla
 };
