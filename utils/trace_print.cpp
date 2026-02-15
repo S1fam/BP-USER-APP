@@ -1,25 +1,52 @@
 #include "trace_print.h"
+#include "pretty_print.h"
 #include <vector>
 #include <iostream>
 
-void printTrace(const Configuration& cfg) {
+void printTrace(const Configuration& cfg, const std::vector<std::string>& input, const Automaton& A) {
     std::vector<const Configuration*> trace;
 
     const Configuration* current = &cfg;
-    while (current) {
+    while (current) { // sbirame cestu zpet
         trace.push_back(current);
         current = current->parent.get();
     }
 
-    // vypisujeme od startu
+    // tisk od startu
     for (auto it = trace.rbegin(); it != trace.rend(); ++it) {
         const Configuration* c = *it;
-        std::cout << "(" << c->state << ", ";
-        std::cout << c->input_pos << ", ";
-        std::cout << "[";
-        for (const auto& s : c->stack)
-            std::cout << s;
-        std::cout << "]";
-        std::cout << ")\n";
+
+        // prvni konfigurace (bez |-e nebo |-p)
+        if (c->parent == nullptr) {
+            std::cout << "(" << c->state << ", ";
+            printRemainingInput(input, c->input_pos);
+            std::cout << ", ";
+            printStack(c->stack);
+            std::cout << ")\n";
+            continue;
+        }
+
+        // typ kroku
+        if (c->applied_rule == SIZE_MAX) {
+            std::cout << "|-p ";
+        } else {
+            std::cout << "|-e ";
+        }
+
+        // konfigurace
+        std::cout << "("
+                  << c->state << ", ";
+        printRemainingInput(input, c->input_pos);
+        std::cout << ", ";
+        printStack(c->stack);
+        std::cout << ")";
+
+        if (c->applied_rule != SIZE_MAX) { // pokud byl krok expanzni
+            std::cout << " [";
+            printRuleWithIndex(A.rules[c->applied_rule], c->applied_rule);
+            std::cout << "] \n";
+        } else {
+            std::cout << "\n";
+        }
     }
 }

@@ -16,6 +16,8 @@ void printNextCFG(const Configuration& cfg, const std::vector<std::string>& inpu
 
 void printRuleHZA(const Rule& r, size_t index);
 
+void printRuleWithIndex(const Rule& r, size_t index);
+
 std::string automatonTypeToString(AutomatonType t);
 
 void printSet(const std::string& name, const std::set<std::string>& s);

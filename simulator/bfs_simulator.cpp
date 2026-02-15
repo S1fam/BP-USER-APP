@@ -3,8 +3,9 @@
 #include <vector>
 #include <queue>
 #include <iostream>
+#include <unordered_set>
 
-constexpr bool DEBUG = true;
+constexpr bool DEBUG = false;
 
 // konstruktor
 BFSSimulator::BFSSimulator(const Automaton& automaton,
@@ -15,6 +16,7 @@ BFSSimulator::BFSSimulator(const Automaton& automaton,
 std::optional<Configuration>
 BFSSimulator::applyRule(const Configuration& config, size_t ruleIndex) const {
     const Rule& rule = A.rules[ruleIndex];
+    
 
     // kontrola stavu
     if (config.state != rule.from) {
@@ -40,7 +42,6 @@ BFSSimulator::applyRule(const Configuration& config, size_t ruleIndex) const {
         }
     }
 
-    // BUG - index je depth, ale pristup na index nezohlednuje terminaly
     // kontrola expand-from (vrchol = vlevo)
     for (size_t i = 0; i < rule.depths.size(); ++i) {
         auto idx = findNthNonterminalIndex(config.stack, rule.depths[i], A);
@@ -86,6 +87,9 @@ BFSSimulator::applyRule(const Configuration& config, size_t ruleIndex) const {
 
 void BFSSimulator::run() {
     std::queue<Configuration> q;
+    std::unordered_set<size_t> visited;
+    constexpr size_t LIMIT = 25000; // rozumny z casoveho hlediska pro nevalidni slova
+    size_t processed = 0;
 
     // pocatecni konfigurace
     Configuration start;
@@ -101,6 +105,18 @@ void BFSSimulator::run() {
         Configuration cfg = q.front();
         q.pop();
 
+        size_t key = hashConfiguration(cfg);
+        if (visited.find(key) != visited.end()) {
+            continue;
+        }
+        visited.insert(key);
+
+        processed++;
+        if (processed >= LIMIT) {
+            std::cout << "REJECT (limit reached)\n";
+            return;
+        }
+
         if (DEBUG) {
             printCFG(cfg, input, A);
         }
@@ -108,12 +124,12 @@ void BFSSimulator::run() {
         // ACCEPT
         if (cfg.input_pos == input.size() &&
             A.F.find(cfg.state) != A.F.end()) {
+            printTrace(cfg, input, A);
             std::cout << "ACCEPT\n";
-            printTrace(cfg);
             return;
         }
 
-        // TERMINÁLNÍ KROK: pop + input++
+        // terminalni krok: pop + input++
         if (!cfg.stack.empty() &&
             cfg.input_pos < input.size()) {
 
@@ -138,7 +154,7 @@ void BFSSimulator::run() {
             }
         }
 
-        // EXPANZNÍ KROKY
+        // expanzni kroky
         for (size_t i = 0; i < A.rules.size(); ++i) {
             auto next = applyRule(cfg, i);
             if (next.has_value()) {
@@ -169,4 +185,15 @@ findNthNonterminalIndex(const std::vector<std::string>& stack, size_t depth, con
         }
     }
     return std::nullopt; // neni tolik neterminalu
+}
+
+// abychom dvakrat nezkoumali stejnou konfiguraci, budeme si uladat hash konfigurace
+size_t hashConfiguration(const Configuration& cfg) {
+    size_t h = std::hash<std::string>{}(cfg.state);
+    h ^= std::hash<size_t>{}(cfg.input_pos) + 0x9e3779b9 + (h<<6) + (h>>2);
+
+    for (const auto& s : cfg.stack) {
+        h ^= std::hash<std::string>{}(s) + 0x9e3779b9 + (h<<6) + (h>>2);
+    }
+    return h;
 }

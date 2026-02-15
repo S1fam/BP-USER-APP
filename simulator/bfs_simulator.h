@@ -4,9 +4,7 @@
 #include "trace_print.h"
 #include <optional>
 #include <string>
-
-std::optional<size_t> findNthNonterminalIndex(const std::vector<std::string>& stack, 
-                                                size_t depth, const Automaton& A);
+#include <functional>
 
 class BFSSimulator {
 public:
@@ -19,3 +17,8 @@ private:
     const Automaton& A;
     const std::vector<std::string>& input;
 };
+
+std::optional<size_t> findNthNonterminalIndex(const std::vector<std::string>& stack, 
+                                                size_t depth, const Automaton& A);
+                                                
+size_t hashConfiguration(const Configuration& cfg);

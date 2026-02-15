@@ -71,7 +71,7 @@ Automaton JsonLoader::loadFromFile(const std::string& filename) {
         automaton.rules.push_back(r);
     }
 
-    printAutomaton(automaton);
+    // printAutomaton(automaton);
 
     return automaton;
 }

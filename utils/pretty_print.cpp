@@ -67,6 +67,16 @@ void printRuleHZA(const Rule& r, size_t index) {
               << "\n";
 }
 
+void printRuleWithIndex(const Rule& r, size_t index) {
+    std::cout << index << ": "
+              << r.depths[0]
+              << r.from
+              << r.expand_from[0]
+              << " → "
+              << r.to
+              << r.expand_to[0];
+}
+
 std::string automatonTypeToString(AutomatonType t) {
     switch (t) {
     case AutomatonType::HZA:     return "HZA";
