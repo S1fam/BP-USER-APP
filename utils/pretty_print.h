@@ -4,11 +4,15 @@
 #include <vector>
 #include <string>
 
-void printCFG(const Configuration& cfg,
-              const std::vector<std::string>& input);
+void printRemainingInput(const std::vector<std::string>& input, size_t pos);
 
-void printNextCFG(const Configuration& cfg,
-                  const std::vector<std::string>& input);
+void printStack(const std::vector<std::string>& stack);
+
+void printStackDetail(const std::vector<std::string>& stack, const Automaton& A);
+
+void printCFG(const Configuration& cfg, const std::vector<std::string>& input, const Automaton& A);
+
+void printNextCFG(const Configuration& cfg, const std::vector<std::string>& input);
 
 void printRuleHZA(const Rule& r, size_t index);
 

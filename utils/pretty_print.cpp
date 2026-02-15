@@ -1,7 +1,7 @@
 #include "pretty_print.h"
 #include <iostream>
 
-static void printRemainingInput(const std::vector<std::string>& input, size_t pos) {
+void printRemainingInput(const std::vector<std::string>& input, size_t pos) {
     if (pos >= input.size()) {
         std::cout << "ε";
     } else {
@@ -11,15 +11,36 @@ static void printRemainingInput(const std::vector<std::string>& input, size_t po
     }
 }
 
-static void printStack(const std::vector<std::string>& stack) {
-    for (const auto& s : stack)
+void printStack(const std::vector<std::string>& stack) {
+    for (const auto& s : stack) {
         std::cout << s;
+    }
 }
 
-void printCFG(const Configuration& cfg, const std::vector<std::string>& input) {
+void printStackDetail(const std::vector<std::string>& stack, const Automaton& A) {
+    std::cout << "Stack: ";
+    for (size_t i = 0; i < stack.size(); ++i) {
+        const std::string& s = stack[i];
+        std::cout << "|" << i << ":" << s;
+
+        if (s == "#") {
+            std::cout << "(#)";
+        }
+        else if (A.Sigma.find(s) != A.Sigma.end()) {
+            std::cout << "(T)"; // terminal
+        }
+        else {
+            std::cout << "(N)"; // neterminal
+        }
+        std::cout << "| ";
+    }
+    std::cout << "\n";
+}
+
+void printCFG(const Configuration& cfg, const std::vector<std::string>& input, const Automaton& A) {
     std::cout << "=== CFG ===\n";
-    std::cout << "("
-              << cfg.state << ", ";
+    printStackDetail(cfg.stack, A);
+    std::cout << "(" << cfg.state << ", ";
     printRemainingInput(input, cfg.input_pos);
     std::cout << ", ";
     printStack(cfg.stack);

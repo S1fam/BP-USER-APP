@@ -5,6 +5,9 @@
 #include <optional>
 #include <string>
 
+std::optional<size_t> findNthNonterminalIndex(const std::vector<std::string>& stack, 
+                                                size_t depth, const Automaton& A);
+
 class BFSSimulator {
 public:
     BFSSimulator(const Automaton& automaton, const std::vector<std::string>& input);
