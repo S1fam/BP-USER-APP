@@ -5,7 +5,7 @@
 #include <iostream>
 #include <unordered_set>
 
-constexpr bool DEBUG = false;
+constexpr bool DEBUG = true;
 
 // konstruktor
 BFSSimulator::BFSSimulator(const Automaton& automaton,
@@ -30,9 +30,8 @@ BFSSimulator::applyRule(const Configuration& config, size_t ruleIndex) const {
             return std::nullopt; // pokud je vstup spotrebovany
         }
         if (input[config.input_pos] != rule.input.value()) {
-            return std::nullopt; // pokud vrchol zasobniku neodpovida vstupu pravidla
+            return std::nullopt; // pokud vstupni symbol neodpovida vstupu pravidla
         }
-        new_input_position++; // vstup se spotrebuje (delame 2x)
     }
 
     // kontrola hloubek
@@ -49,32 +48,31 @@ BFSSimulator::applyRule(const Configuration& config, size_t ruleIndex) const {
         if (config.stack[*idx] != rule.expand_from[i]) { return std::nullopt; }
     }
 
+
+    // prepis od nejvetsi hloubky
+    // spocitame vsechny indexy
+    std::vector<size_t> indices;
+    for (size_t i = 0; i < rule.depths.size(); ++i) {
+        auto idx = findNthNonterminalIndex(config.stack, rule.depths[i], A);
+        if (!idx || config.stack[*idx] != rule.expand_from[i]) {
+            return std::nullopt;
+        }
+        indices.push_back(*idx);
+    }
+
     // vytvoreni nove konfigurace
     std::vector<std::string> newStack = config.stack;
+    // prepis od nejvetsiho indexu
+    for (int i = (int)indices.size() - 1; i >= 0; --i) {
+        size_t index = indices[i];
+        newStack.erase(newStack.begin() + index);
 
-    // BUG - podobne hornimu, bereme depth, ale na zasobniku jsou terminaly
-    // prepis od nejvetsi hloubky
-    for (int i = (int)rule.depths.size() - 1; i >= 0; --i) {
-        // spocitame vsechny indexy
-        std::vector<size_t> indices;
-        for (size_t i = 0; i < rule.depths.size(); ++i) {
-            auto idx = findNthNonterminalIndex(newStack, rule.depths[i], A);
-            if (!idx.has_value()) {
-                return std::nullopt;
-            }
-            indices.push_back(*idx);
-        }
-
-        // prepisujeme od nejvetsiho indexu
-        for (int i = (int)rule.depths.size() - 1; i >= 0; --i) {
-            size_t index = indices[i];
-            newStack.erase(newStack.begin() + index);
-            const std::string& w = rule.expand_to[i];
-            for (auto it = w.rbegin(); it != w.rend(); ++it) {
-                newStack.insert(newStack.begin() + index, std::string(1, *it));
-            }
+        const std::string& w = rule.expand_to[i];
+        for (auto it = w.rbegin(); it != w.rend(); ++it) {
+            newStack.insert(newStack.begin() + index, std::string(1, *it));
         }
     }
+
 
     Configuration next;
     next.state = rule.to;
@@ -88,7 +86,7 @@ BFSSimulator::applyRule(const Configuration& config, size_t ruleIndex) const {
 void BFSSimulator::run() {
     std::queue<Configuration> q;
     std::unordered_set<size_t> visited;
-    constexpr size_t LIMIT = 25000; // rozumny z casoveho hlediska pro nevalidni slova
+    constexpr size_t LIMIT = 20000; // 25000-50000 - rozumne z casoveho hlediska pro nevalidni slova
     size_t processed = 0;
 
     // pocatecni konfigurace
