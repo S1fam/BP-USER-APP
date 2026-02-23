@@ -56,25 +56,29 @@ void printNextCFG(const Configuration& cfg, const std::vector<std::string>& inpu
     std::cout << ")\n";
 }
 
-void printRuleHZA(const Rule& r, size_t index) {
-    std::cout << "  [" << index << "] "
-              << r.depths[0]
-              << r.from
-              << r.expand_from[0]
-              << " → "
-              << r.to
-              << r.expand_to[0]
-              << "\n";
-}
+void printRule(const Rule& r, size_t index) {
+    std::cout << (index + 1) << ": ";
 
-void printRuleWithIndex(const Rule& r, size_t index) {
-    std::cout << index << ": "
-              << r.depths[0]
-              << r.from
-              << r.expand_from[0]
-              << " → "
-              << r.to
-              << r.expand_to[0];
+    // tisk vstupniho symbolu u VRCPHZA
+    if (r.input.has_value()) {
+        std::cout << r.input.value();
+    }
+
+    std::cout << r.from << "(";
+
+    for (size_t i = 0; i < r.depths.size(); ++i) {
+        if (i > 0) { std::cout << ","; }
+        std::cout << r.depths[i] << r.expand_from[i];
+    }
+
+    std::cout << ") -> " << r.to << "(";
+
+    for (size_t i = 0; i < r.expand_to.size(); ++i) {
+        if (i > 0) { std::cout << ","; }
+        std::cout << r.expand_to[i];
+    }
+
+    std::cout << ")";
 }
 
 std::string automatonTypeToString(AutomatonType t) {
@@ -107,7 +111,7 @@ void printAutomaton(const Automaton& A) {
 
     std::cout << "Rules:\n";
     for (size_t i = 0; i < A.rules.size(); ++i) {
-        printRuleHZA(A.rules[i], i);
+        printRule(A.rules[i], i);
     }
 
     std::cout << "=================\n";

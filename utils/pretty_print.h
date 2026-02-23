@@ -14,9 +14,7 @@ void printCFG(const Configuration& cfg, const std::vector<std::string>& input, c
 
 void printNextCFG(const Configuration& cfg, const std::vector<std::string>& input);
 
-void printRuleHZA(const Rule& r, size_t index);
-
-void printRuleWithIndex(const Rule& r, size_t index);
+void printRule(const Rule& r, size_t index);
 
 std::string automatonTypeToString(AutomatonType t);
 

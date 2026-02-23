@@ -5,11 +5,10 @@
 #include <iostream>
 #include <unordered_set>
 
-constexpr bool DEBUG = true;
+constexpr bool DEBUG = false;
 
 // konstruktor
-BFSSimulator::BFSSimulator(const Automaton& automaton,
-                           const std::vector<std::string>& input)
+BFSSimulator::BFSSimulator(const Automaton& automaton, const std::vector<std::string>& input)
     : A(automaton), input(input) {}
 
 // aplikace jednoho pravidla
@@ -86,6 +85,7 @@ BFSSimulator::applyRule(const Configuration& config, size_t ruleIndex) const {
 void BFSSimulator::run() {
     std::queue<Configuration> q;
     std::unordered_set<size_t> visited;
+    // limit poctu navstivenych konfiguraci
     constexpr size_t LIMIT = 20000; // 25000-50000 - rozumne z casoveho hlediska pro nevalidni slova
     size_t processed = 0;
 
@@ -100,12 +100,12 @@ void BFSSimulator::run() {
     q.push(start);
 
     while (!q.empty()) {
-        Configuration cfg = q.front();
+        Configuration cfg = q.front(); // zkoumana konfigurace se vezme z pocatku fronty
         q.pop();
 
         size_t key = hashConfiguration(cfg);
-        if (visited.find(key) != visited.end()) {
-            continue;
+        if (visited.find(key) != visited.end()) { // pokud key je ve visited
+            continue; // pokracujeme na dalsi konfiguraci
         }
         visited.insert(key);
 
@@ -120,8 +120,8 @@ void BFSSimulator::run() {
         }
 
         // ACCEPT
-        if (cfg.input_pos == input.size() &&
-            A.F.find(cfg.state) != A.F.end()) {
+        if ((cfg.input_pos == input.size()) && (A.F.find(cfg.state) != A.F.end())
+        && (cfg.stack.size() == 1) && (cfg.stack.front() == "#")) {
             printTrace(cfg, input, A);
             std::cout << "ACCEPT\n";
             return;
@@ -152,20 +152,20 @@ void BFSSimulator::run() {
             }
         }
 
-        // expanzni kroky
+        // expanzni kroky - zkusime aplikovat kazde pravidlo
         for (size_t i = 0; i < A.rules.size(); ++i) {
             auto next = applyRule(cfg, i);
-            if (next.has_value()) {
+            if (next.has_value()) { // pokud applyRule nevratilo nullopt
                 if (DEBUG) {
-                    printRuleHZA(A.rules[i], i);
+                    printRule(A.rules[i], i);
                     printNextCFG(*next, input);
                 }
-                q.push(next.value());
+                q.push(next.value()); // pridame pravidlo do fronty
             }
         }
     }
 
-    std::cout << "REJECT\n";
+    std::cout << "REJECT\n"; // pokud jsme v cyklu neprijali vstup
 }
 
 std::optional<size_t> // hledame index v zasobniku od vrcholu, kde se nachazi neterminal hloubky depth

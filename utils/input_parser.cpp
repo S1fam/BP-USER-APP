@@ -13,11 +13,11 @@ std::vector<std::string> parseInputWord(const std::string& raw) {
     std::stringstream ss(s);
     std::string token;
 
-    while (std::getline(ss, token, ',')) {
+    while (std::getline(ss, token, ',')) { // z celeho vstupu v ss vezmeme kazdy token oddeleny ","
         if (token.empty()) {
             throw std::runtime_error("Empty symbol in input word.");
         }
-        result.push_back(token);
+        result.push_back(token); // token vlozime do pole tokenu
     }
 
     return result;
