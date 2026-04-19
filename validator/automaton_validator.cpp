@@ -37,9 +37,10 @@ ValidationResult AutomatonValidator::validate(const Automaton& Automaton) {
             error("Rule " + std::to_string(i) + ": to-state not in Q.");
         }
 
-        if (Automaton.type == AutomatonType::HZA) { // kontrola, zda mame pouze jeden index u HZA
+        if (Automaton.type == AutomatonType::HZA || Automaton.type == AutomatonType::LHZA) {
+            // HZA a LHZA maji vzdy prave jeden index hloubky
             if (rule.depths.size() != 1) {
-                error("Rule " + std::to_string(i) + ": HZA rule must have exactly one depth.");
+                error("Rule " + std::to_string(i) + ": HZA/LHZA rule must have exactly one depth.");
             }
         }
 
@@ -55,9 +56,31 @@ ValidationResult AutomatonValidator::validate(const Automaton& Automaton) {
             }
         }
 
-        // kontrola, zda se nesnazime pouzivat input u HZA/CPHZA
+        // kontrola, zda se nesnazime pouzivat input u HZA/CPHZA/LHZA
         if (Automaton.type != AutomatonType::VRCPHZA && rule.input.has_value()) {
             error("Rule " + std::to_string(i) + ": input symbol not allowed for this automaton type.");
+        }
+
+        // kontrola lookaheadu: oba klice musi byt nastaveny zaroven
+        if (rule.lookahead_depth.has_value() != rule.lookahead_symbol.has_value()) {
+            error("Rule " + std::to_string(i) + ": input-depth and lookahead must both be set or both absent.");
+        }
+
+        // lookahead je povolen pouze pro LHZA
+        if (Automaton.type != AutomatonType::LHZA && rule.lookahead_depth.has_value()) {
+            error("Rule " + std::to_string(i) + ": lookahead not allowed for this automaton type.");
+        }
+
+        // lookahead-depth musi byt >= 1
+        if (rule.lookahead_depth.has_value() && rule.lookahead_depth.value() < 1) {
+            error("Rule " + std::to_string(i) + ": input-depth must be >= 1.");
+        }
+
+        // lookahead symbol musi byt v Sigma
+        if (rule.lookahead_symbol.has_value()) {
+            if (Automaton.Sigma.find(rule.lookahead_symbol.value()) == Automaton.Sigma.end()) {
+                error("Rule " + std::to_string(i) + ": lookahead symbol not in Sigma.");
+            }
         }
     }
 

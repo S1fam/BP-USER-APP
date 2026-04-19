@@ -8,7 +8,7 @@
 
 class BFSSimulator {
 public:
-    BFSSimulator(const Automaton& automaton, const std::vector<std::string>& input);
+    BFSSimulator(const Automaton& automaton, const std::vector<std::string>& input, bool verbose = false);
     std::optional<Configuration>
     applyRule(const Configuration& cfg, size_t ruleIndex) const;
     void run();
@@ -16,6 +16,7 @@ public:
 private:
     const Automaton& A;
     const std::vector<std::string>& input;
+    bool verbose;
 };
 
 std::optional<size_t> findNthNonterminalIndex(const std::vector<std::string>& stack, 

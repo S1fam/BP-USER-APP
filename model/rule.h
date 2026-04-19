@@ -14,4 +14,7 @@ struct Rule {
 
     std::vector<std::string> expand_from; // vychozi nevstupni symbol
     std::vector<std::string> expand_to; // novy retezec po prepisu
+
+    std::optional<size_t> lookahead_depth;  // k: kolikaty vstupni symbol (1 = aktualni)
+    std::optional<std::string> lookahead_symbol; // a: ocekavany vstupni symbol na pozici k
 };

@@ -7,7 +7,8 @@
 enum class AutomatonType {
     HZA,
     CPHZA,
-    VRCPHZA
+    VRCPHZA,
+    LHZA
 };
 
 struct Automaton {

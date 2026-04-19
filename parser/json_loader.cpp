@@ -31,6 +31,9 @@ Automaton JsonLoader::loadFromFile(const std::string& filename) {
     else if (type == "VRCPHZA") {
         automaton.type = AutomatonType::VRCPHZA;
     }
+    else if (type == "LHZA") {
+        automaton.type = AutomatonType::LHZA;
+    }
     else {
         throw std::runtime_error("Unknown automaton type");
     }
@@ -60,8 +63,8 @@ Automaton JsonLoader::loadFromFile(const std::string& filename) {
             }
         }
 
-        // json pro HZA ma pole depth, namisto depths
-        if (automaton.type == AutomatonType::HZA) {
+        // json pro HZA a LHZA ma pole depth, namisto depths
+        if (automaton.type == AutomatonType::HZA || automaton.type == AutomatonType::LHZA) {
             r.depths.push_back(rule.at("depth"));
         } else {
             r.depths = rule.at("depths").get<std::vector<size_t>>();
@@ -69,6 +72,14 @@ Automaton JsonLoader::loadFromFile(const std::string& filename) {
 
         r.expand_from = rule.at("expand-from").get<std::vector<std::string>>();
         r.expand_to = rule.at("expand-to").get<std::vector<std::string>>();
+
+        // lookahead - volitelne, oba klice musi byt pritomny zaroven (pouze pro LHZA)
+        if (rule.contains("input-depth") && rule.contains("lookahead")) {
+            if (!rule.at("input-depth").is_null() && !rule.at("lookahead").is_null()) {
+                r.lookahead_depth = rule.at("input-depth").get<size_t>();
+                r.lookahead_symbol = rule.at("lookahead").get<std::string>();
+            }
+        }
 
         automaton.rules.push_back(r);
     }

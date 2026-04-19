@@ -79,6 +79,12 @@ void printRule(const Rule& r, size_t index) {
     }
 
     std::cout << ")";
+
+    // tisk lookaheadu u LHZA
+    if (r.lookahead_depth.has_value() && r.lookahead_symbol.has_value()) {
+        std::cout << " [look: " << r.lookahead_depth.value()
+                  << "=" << r.lookahead_symbol.value() << "]";
+    }
 }
 
 std::string automatonTypeToString(AutomatonType t) {
@@ -86,6 +92,7 @@ std::string automatonTypeToString(AutomatonType t) {
     case AutomatonType::HZA:     return "HZA";
     case AutomatonType::CPHZA:   return "CPHZA";
     case AutomatonType::VRCPHZA: return "VRCPHZA";
+    case AutomatonType::LHZA:    return "LHZA";
     default:                     return "UNKNOWN";
     }
 }

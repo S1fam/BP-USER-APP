@@ -8,8 +8,8 @@
 constexpr bool DEBUG = false;
 
 // konstruktor
-BFSSimulator::BFSSimulator(const Automaton& automaton, const std::vector<std::string>& input)
-    : A(automaton), input(input) {}
+BFSSimulator::BFSSimulator(const Automaton& automaton, const std::vector<std::string>& input, bool verbose)
+    : A(automaton), input(input), verbose(verbose) {}
 
 // aplikace jednoho pravidla
 std::optional<Configuration>
@@ -30,6 +30,20 @@ BFSSimulator::applyRule(const Configuration& config, size_t ruleIndex) const {
         }
         if (input[config.input_pos] != rule.input.value()) {
             return std::nullopt; // pokud vstupni symbol neodpovida vstupu pravidla
+        }
+    }
+
+    // kontrola lookaheadu (LHZA): input-depth k, lookahead symbol a
+    // pravidlo se aplikuje, pokud input[input_pos + k - 1] == a
+    // pravidlo bez lookaheadu se aplikuje vzdy (lookahead je volitelny)
+    if (rule.lookahead_depth.has_value() && rule.lookahead_symbol.has_value()) {
+        size_t k = rule.lookahead_depth.value();
+        size_t look_pos = config.input_pos + k - 1; // k=1 znamena aktualni symbol
+        if (look_pos >= input.size()) {
+            return std::nullopt; // pozice lookaheadu je za koncem vstupu
+        }
+        if (input[look_pos] != rule.lookahead_symbol.value()) {
+            return std::nullopt; // ocekavany symbol neodpovida
         }
     }
 
@@ -111,56 +125,65 @@ void BFSSimulator::run() {
 
         processed++;
         if (processed >= LIMIT) {
+            if (verbose) {
+                std::cerr << "Configurations visited: " << processed << "\n";
+            }
             std::cout << "REJECT (limit reached)\n";
             return;
         }
-
+ 
         if (DEBUG) {
             printCFG(cfg, input, A);
         }
-
+ 
         // ACCEPT
         if ((cfg.input_pos == input.size()) && (A.F.find(cfg.state) != A.F.end())
         && (cfg.stack.size() == 1) && (cfg.stack.front() == "#")) {
             printTrace(cfg, input, A);
+            if (verbose) {
+                std::cerr << "Configurations visited: " << processed << "\n";
+            }
             std::cout << "ACCEPT\n";
             return;
         }
-
-        // terminalni krok: pop + input++
-        if (!cfg.stack.empty() &&
-            cfg.input_pos < input.size()) {
-
+ 
+        // terminalni krok (pop): ma prednost pred expanzemi.
+        // pokud vrchol zasobniku == aktualni vstupni symbol, jedina mozna akce je pop.
+        // expanze se v takovem pripade vubec nezkousi.
+        bool did_pop = false;
+        if (!cfg.stack.empty() && cfg.input_pos < input.size()) {
             const std::string& top = cfg.stack.front();
-
             if (top != "#" &&
                 A.Sigma.find(top) != A.Sigma.end() &&
                 top == input[cfg.input_pos]) {
-
+ 
                 Configuration next = cfg;
-                next.stack.erase(next.stack.begin()); // pop zleva
+                next.stack.erase(next.stack.begin());
                 next.input_pos++;
                 next.parent = std::make_shared<Configuration>(cfg);
                 next.applied_rule = SIZE_MAX;
-
+ 
                 if (DEBUG) {
                     std::cout << "  -> terminal step\n";
                     printNextCFG(next, input);
                 }
-
+ 
                 q.push(next);
+                did_pop = true;
             }
         }
-
-        // expanzni kroky - zkusime aplikovat kazde pravidlo
-        for (size_t i = 0; i < A.rules.size(); ++i) {
-            auto next = applyRule(cfg, i);
-            if (next.has_value()) { // pokud applyRule nevratilo nullopt
-                if (DEBUG) {
-                    printRule(A.rules[i], i);
-                    printNextCFG(*next, input);
+ 
+        // expanzni kroky - pouze pokud nebyl proveden pop
+        if (!did_pop) {
+            for (size_t i = 0; i < A.rules.size(); ++i) {
+                auto next = applyRule(cfg, i);
+                if (next.has_value()) {
+                    if (DEBUG) {
+                        printRule(A.rules[i], i);
+                        printNextCFG(*next, input);
+                    }
+                    q.push(next.value());
                 }
-                q.push(next.value()); // pridame pravidlo do fronty
             }
         }
     }
