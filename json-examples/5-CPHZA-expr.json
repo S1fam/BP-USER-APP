@@ -1,0 +1,76 @@
+{
+  "type": "CPHZA",
+  "n": 3,
+  "Q": ["qs", "ql", "qn", "qp", "qf"],
+  "Sigma": ["+", "*", "l"],
+  "Gamma": ["S", "P", "N", "L", "#"],
+  "s": "qs",
+  "S": "S",
+  "F": ["qf"],
+  "rules": [
+    {
+      "comment": "1: qs(1S) -> ql(lL) - inicializace",
+      "from": "qs",
+      "depths": [1],
+      "expand-from": ["S"],
+      "expand-to": ["lL"],
+      "to": "ql"
+    },
+    {
+      "comment": "2: ql(1L) -> qn(*NL) - nasobeni: uloz N, priprav pop *",
+      "from": "ql",
+      "depths": [1],
+      "expand-from": ["L"],
+      "expand-to": ["*NL"],
+      "to": "qn"
+    },
+    {
+      "comment": "3: ql(1L) -> ql(+PL) - scitani: uloz P, priprav pop +",
+      "from": "ql",
+      "depths": [1],
+      "expand-from": ["L"],
+      "expand-to": ["+PL"],
+      "to": "ql"
+    },
+    {
+      "comment": "4: ql(1P) -> ql(lLP) - dalsi literal po +",
+      "from": "ql",
+      "depths": [1],
+      "expand-from": ["P"],
+      "expand-to": ["lLP"],
+      "to": "ql"
+    },
+    {
+      "comment": "5: qn(1N,2L) -> ql(l,L) - redukce nasobeni: N->l pro pop druheho literalu, L zustane",
+      "from": "qn",
+      "depths": [1, 2],
+      "expand-from": ["N", "L"],
+      "expand-to": ["l", "L"],
+      "to": "ql"
+    },
+    {
+      "comment": "6: ql(1L) -> qp(L) - konec cteni vstupu, prechod do faze scitani",
+      "from": "ql",
+      "depths": [1],
+      "expand-from": ["L"],
+      "expand-to": ["L"],
+      "to": "qp"
+    },
+    {
+      "comment": "7a: qp(1L,2P,3L) -> qp(eps,L,eps) - redukce LPL->L (scitani)",
+      "from": "qp",
+      "depths": [1, 2, 3],
+      "expand-from": ["L", "P", "L"],
+      "expand-to": ["", "L", ""],
+      "to": "qp"
+    },
+    {
+      "comment": "8: qp(1L) -> qf(eps) - prijeti: posledni L se smaze",
+      "from": "qp",
+      "depths": [1],
+      "expand-from": ["L"],
+      "expand-to": [""],
+      "to": "qf"
+    }
+  ]
+}

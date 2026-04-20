@@ -1,0 +1,84 @@
+{
+  "type": "VRCPHZA",
+  "n": 3,
+  "Q": ["qs", "ql", "qn", "qp", "qf"],
+  "Sigma": ["+", "*", "l"],
+  "Gamma": ["S", "P", "N", "L", "#"],
+  "s": "qs",
+  "S": "S",
+  "F": ["qf"],
+  "rules": [
+    {
+      "comment": "1: qsl(1S) -> ql(lL)",
+      "from": "qs",
+      "input": "l",
+      "depths": [1],
+      "expand-from": ["S"],
+      "expand-to": ["lL"],
+      "to": "ql"
+    },
+    {
+      "comment": "2: ql*(1L) -> qn(*NL)",
+      "from": "ql",
+      "input": "*",
+      "depths": [1],
+      "expand-from": ["L"],
+      "expand-to": ["*NL"],
+      "to": "qn"
+    },
+    {
+      "comment": "3: ql+(1L) -> ql(+PL)",
+      "from": "ql",
+      "input": "+",
+      "depths": [1],
+      "expand-from": ["L"],
+      "expand-to": ["+PL"],
+      "to": "ql"
+    },
+    {
+      "comment": "4: qll(1P) -> ql(lLP)",
+      "from": "ql",
+      "input": "l",
+      "depths": [1],
+      "expand-from": ["P"],
+      "expand-to": ["lLP"],
+      "to": "ql"
+    },
+    {
+      "comment": "5: qnl(1N,2L) -> ql(l,L)",
+      "from": "qn",
+      "input": "l",
+      "depths": [1, 2],
+      "expand-from": ["N", "L"],
+      "expand-to": ["l", "L"],
+      "to": "ql"
+    },
+    {
+      "comment": "6: ql prazdny vstup (1L) -> qp(L) - reprezentovano null = bez podminky na vstup",
+      "from": "ql",
+      "input": null,
+      "depths": [1],
+      "expand-from": ["L"],
+      "expand-to": ["L"],
+      "to": "qp"
+    },
+    {
+      "comment": "7a: qp prazdny vstup (1L,2P,3L) -> qp(eps,L,eps)",
+      "from": "qp",
+      "input": null,
+      "depths": [1, 2, 3],
+      "expand-from": ["L", "P", "L"],
+      "expand-to": ["", "L", ""],
+      "to": "qp"
+    },
+    {
+      "comment": "8: qp prazdny vstup (1L) -> qf(eps)",
+      "from": "qp",
+      "input": null,
+      "depths": [1],
+      "expand-from": ["L"],
+      "expand-to": [""],
+      "to": "qf"
+    }
+  ]
+}

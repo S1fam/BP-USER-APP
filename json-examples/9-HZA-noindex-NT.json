@@ -1,0 +1,68 @@
+{
+  "type": "HZA",
+  "n": 3,
+  "Q": ["s", "q1", "q2", "q3", "qf"],
+  "Sigma": ["a", "b", "c", "d", "e", "f"],
+  "Gamma": ["S", "A", "#"],
+  "s": "s",
+  "S": "S",
+  "F": ["qf"],
+  "rules": [
+    {
+      "comment": "1: 1sS -> q1 AAA",
+      "from": "s",
+      "depth": 1,
+      "expand-from": ["S"],
+      "expand-to": ["AAA"],
+      "to": "q1"
+    },
+    {
+      "comment": "2: 1q1A -> q2 aAb",
+      "from": "q1",
+      "depth": 1,
+      "expand-from": ["A"],
+      "expand-to": ["aAb"],
+      "to": "q2"
+    },
+    {
+      "comment": "3: 1q1A -> qf ab  (posledni iterace)",
+      "from": "q1",
+      "depth": 1,
+      "expand-from": ["A"],
+      "expand-to": ["ab"],
+      "to": "qf"
+    },
+    {
+      "comment": "4: 2q2A -> q3 cAd",
+      "from": "q2",
+      "depth": 2,
+      "expand-from": ["A"],
+      "expand-to": ["cAd"],
+      "to": "q3"
+    },
+    {
+      "comment": "5: 3q3A -> q1 eAf",
+      "from": "q3",
+      "depth": 3,
+      "expand-from": ["A"],
+      "expand-to": ["eAf"],
+      "to": "q1"
+    },
+    {
+      "comment": "6: 1qfA -> qf cd  (melo by byt pro B - ale B=A, nedeterminismus)",
+      "from": "qf",
+      "depth": 1,
+      "expand-from": ["A"],
+      "expand-to": ["cd"],
+      "to": "qf"
+    },
+    {
+      "comment": "7: 1qfA -> qf ef  (melo by byt pro C - ale C=A, nedeterminismus)",
+      "from": "qf",
+      "depth": 1,
+      "expand-from": ["A"],
+      "expand-to": ["ef"],
+      "to": "qf"
+    }
+  ]
+}
