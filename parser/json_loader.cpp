@@ -6,8 +6,6 @@
 #include <json.hpp>
 #include <iostream>
 
-constexpr bool DEBUG = false;
-
 Automaton JsonLoader::loadFromFile(const std::string& filename) {
     Automaton automaton;
     using json = nlohmann::json;
@@ -83,8 +81,6 @@ Automaton JsonLoader::loadFromFile(const std::string& filename) {
 
         automaton.rules.push_back(r);
     }
-
-    if (DEBUG) { printAutomaton(automaton); }
 
     return automaton;
 }

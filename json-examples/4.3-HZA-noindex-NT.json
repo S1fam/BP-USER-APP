@@ -49,7 +49,7 @@
       "to": "q1"
     },
     {
-      "comment": "6: 1qfA -> qf cd  (melo by byt pro B - ale B=A, nedeterminismus)",
+      "comment": "6: 1qfA -> qf cd",
       "from": "qf",
       "depth": 1,
       "expand-from": ["A"],
@@ -57,7 +57,7 @@
       "to": "qf"
     },
     {
-      "comment": "7: 1qfA -> qf ef  (melo by byt pro C - ale C=A, nedeterminismus)",
+      "comment": "7: 1qfA -> qf ef",
       "from": "qf",
       "depth": 1,
       "expand-from": ["A"],

@@ -17,29 +17,8 @@ void printStack(const std::vector<std::string>& stack) {
     }
 }
 
-void printStackDetail(const std::vector<std::string>& stack, const Automaton& A) {
-    std::cout << "Stack: ";
-    for (size_t i = 0; i < stack.size(); ++i) {
-        const std::string& s = stack[i];
-        std::cout << "|" << i << ":" << s;
-
-        if (s == "#") {
-            std::cout << "(#)";
-        }
-        else if (A.Sigma.find(s) != A.Sigma.end()) {
-            std::cout << "(T)"; // terminal
-        }
-        else {
-            std::cout << "(N)"; // neterminal
-        }
-        std::cout << "| ";
-    }
-    std::cout << "\n";
-}
-
-void printCFG(const Configuration& cfg, const std::vector<std::string>& input, const Automaton& A) {
-    std::cout << "=== CFG ===\n";
-    printStackDetail(cfg.stack, A);
+void printCFG(const Configuration& cfg, const std::vector<std::string>& input) {
+    std::cout << "========== CONFIGURATION ==========\n";
     std::cout << "(" << cfg.state << ", ";
     printRemainingInput(input, cfg.input_pos);
     std::cout << ", ";
@@ -48,7 +27,7 @@ void printCFG(const Configuration& cfg, const std::vector<std::string>& input, c
 }
 
 void printNextCFG(const Configuration& cfg, const std::vector<std::string>& input) {
-    std::cout << "     next CFG: ("
+    std::cout << " --> next CFG: ("
               << cfg.state << ", ";
     printRemainingInput(input, cfg.input_pos);
     std::cout << ", ";
@@ -56,35 +35,51 @@ void printNextCFG(const Configuration& cfg, const std::vector<std::string>& inpu
     std::cout << ")\n";
 }
 
-void printRule(const Rule& r, size_t index) {
-    std::cout << (index + 1) << ": ";
-
-    // tisk vstupniho symbolu u VRCPHZA
-    if (r.input.has_value()) {
-        std::cout << r.input.value();
+void printRule(const Rule& r, size_t index, AutomatonType type) {
+    std::cout << "[" << (index + 1) << ": ";
+ 
+    bool is_hza_style = (type == AutomatonType::HZA || type == AutomatonType::LHZA);
+ 
+    if (is_hza_style) {
+        // HZA / LHZA
+        std::cout << r.depths[0] << r.from << r.expand_from[0];
+ 
+        // lookahead u LHZA: hloubka vstupu + vstupni symbol za symbolem zasobniku
+        if (r.lookahead_depth.has_value() && r.lookahead_symbol.has_value()) {
+            std::cout << r.lookahead_depth.value() << r.lookahead_symbol.value();
+        }
+ 
+        std::cout << " -> " << r.to;
+ 
+        // expand-to: vsechny symboly spojene dohromady
+        for (size_t i = 0; i < r.expand_to.size(); ++i) {
+            std::cout << r.expand_to[i];
+        }
+    } else {
+        // CPHZA / VRCPHZA
+        std::cout << r.from;
+ 
+        // vstupni symbol u VRCPHZA
+        if (r.input.has_value()) {
+            std::cout << r.input.value();
+        }
+ 
+        std::cout << "(";
+        for (size_t i = 0; i < r.depths.size(); ++i) {
+            if (i > 0) { std::cout << ","; }
+            std::cout << r.depths[i] << r.expand_from[i];
+        }
+ 
+        std::cout << ") -> " << r.to << "(";
+ 
+        for (size_t i = 0; i < r.expand_to.size(); ++i) {
+            if (i > 0) { std::cout << ","; }
+            std::cout << r.expand_to[i];
+        }
+ 
+        std::cout << ")";
     }
-
-    std::cout << r.from << "(";
-
-    for (size_t i = 0; i < r.depths.size(); ++i) {
-        if (i > 0) { std::cout << ","; }
-        std::cout << r.depths[i] << r.expand_from[i];
-    }
-
-    std::cout << ") -> " << r.to << "(";
-
-    for (size_t i = 0; i < r.expand_to.size(); ++i) {
-        if (i > 0) { std::cout << ","; }
-        std::cout << r.expand_to[i];
-    }
-
-    std::cout << ")";
-
-    // tisk lookaheadu u LHZA
-    if (r.lookahead_depth.has_value() && r.lookahead_symbol.has_value()) {
-        std::cout << " [look: " << r.lookahead_depth.value()
-                  << "=" << r.lookahead_symbol.value() << "]";
-    }
+    std::cout << "]";
 }
 
 std::string automatonTypeToString(AutomatonType t) {
@@ -95,31 +90,4 @@ std::string automatonTypeToString(AutomatonType t) {
     case AutomatonType::LHZA:    return "LHZA";
     default:                     return "UNKNOWN";
     }
-}
-
-void printSet(const std::string& name, const std::set<std::string>& s) {
-    std::cout << name << " = { ";
-    for (const auto& x : s)
-        std::cout << x << " ";
-    std::cout << "}\n";
-}
-
-void printAutomaton(const Automaton& A) {
-    std::cout << "=== AUTOMATON ===\n";
-    std::cout << "Type: " << automatonTypeToString(A.type) << "\n";
-    std::cout << "n: " << A.n << "\n";
-    std::cout << "Start state: " << A.s << "\n";
-    std::cout << "Start stack symbol: " << A.S << "\n";
-
-    printSet("Q", A.Q);
-    printSet("Sigma", A.Sigma);
-    printSet("Gamma", A.Gamma);
-    printSet("F", A.F);
-
-    std::cout << "Rules:\n";
-    for (size_t i = 0; i < A.rules.size(); ++i) {
-        printRule(A.rules[i], i);
-    }
-
-    std::cout << "=================\n";
 }

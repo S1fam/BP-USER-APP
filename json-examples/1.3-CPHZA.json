@@ -1,0 +1,33 @@
+{
+  "type": "CPHZA",
+  "n": 2,
+  "Q": ["s", "q", "f"],
+  "Sigma": ["a", "b", "c"],
+  "Gamma": ["S", "A", "#"],
+  "s": "s",
+  "S": "S",
+  "F": ["f"],
+  "rules": [
+    {
+      "from": "s",
+      "depths": [1],
+      "expand-from": ["S"],
+      "expand-to": ["AA"],
+      "to": "q"
+    },
+    {
+      "from": "q",
+      "depths": [1, 2],
+      "expand-from": ["A", "A"],
+      "expand-to": ["aAb", "Ac"],
+      "to": "q"
+    },
+    {
+      "from": "q",
+      "depths": [1, 2],
+      "expand-from": ["A", "A"],
+      "expand-to": ["ab", "c"],
+      "to": "f"
+    }
+  ]
+}

@@ -12,6 +12,8 @@ void printTrace(const Configuration& cfg, const std::vector<std::string>& input,
         current = current->parent.get();
     }
 
+    std::cout << "===== Prubeh vypoctu =====" << std::endl;
+
     // tisk od startu
     for (auto it = trace.rbegin(); it != trace.rend(); ++it) {
         const Configuration* c = *it;
@@ -42,9 +44,9 @@ void printTrace(const Configuration& cfg, const std::vector<std::string>& input,
         std::cout << ")";
 
         if (c->applied_rule != SIZE_MAX) { // pokud byl krok expanzni
-            std::cout << "   [";
-            printRule(A.rules[c->applied_rule], c->applied_rule);
-            std::cout << "] \n";
+            std::cout << "  ";
+            printRule(A.rules[c->applied_rule], c->applied_rule, A.type);
+            std::cout << "\n";
         } else {
             std::cout << "\n";
         }
