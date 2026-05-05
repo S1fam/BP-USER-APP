@@ -9,7 +9,6 @@
   "F": ["qf"],
   "rules": [
     {
-      "comment": "1: 1sS -> q1 ABC",
       "from": "s",
       "depth": 1,
       "expand-from": ["S"],
@@ -17,7 +16,7 @@
       "to": "q1"
     },
     {
-      "comment": "2: 1q1A 2=a -> q2 aAb  (pokracujeme v generovani)",
+      "comment": "2: 1qA2a -> q2aAb  (pokracujeme v generovani)",
       "from": "q1",
       "depth": 1,
       "expand-from": ["A"],
@@ -27,7 +26,7 @@
       "lookahead": "a"
     },
     {
-      "comment": "3: 1q1A 2=b -> qf ab  (posledni iterace)",
+      "comment": "3: 1qA2b -> qfab  (posledni iterace)",
       "from": "q1",
       "depth": 1,
       "expand-from": ["A"],
@@ -37,7 +36,6 @@
       "lookahead": "b"
     },
     {
-      "comment": "4: 2q2B -> q3 cBd",
       "from": "q2",
       "depth": 2,
       "expand-from": ["B"],
@@ -45,7 +43,6 @@
       "to": "q3"
     },
     {
-      "comment": "5: 3q3C -> q1 eCf",
       "from": "q3",
       "depth": 3,
       "expand-from": ["C"],
@@ -53,7 +50,6 @@
       "to": "q1"
     },
     {
-      "comment": "6: 1qfB -> qf cd",
       "from": "qf",
       "depth": 1,
       "expand-from": ["B"],
@@ -61,7 +57,6 @@
       "to": "qf"
     },
     {
-      "comment": "7: 1qfC -> qf ef",
       "from": "qf",
       "depth": 1,
       "expand-from": ["C"],

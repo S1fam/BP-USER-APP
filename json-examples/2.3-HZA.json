@@ -1,0 +1,75 @@
+{
+  "type": "HZA",
+  "n": 3,
+  "Q": ["qs", "qac", "qbd", "qac1", "qbd1", "qf"],
+  "Sigma": ["a", "b", "c", "d"],
+  "Gamma": ["S", "A", "B", "C", "D", "#"],
+  "s": "qs",
+  "S": "S",
+  "F": ["qf"],
+  "rules": [
+    {
+      "from": "qs",
+      "depth": 1,
+      "expand-from": ["S"],
+      "expand-to": ["ABCD"],
+      "to": "qac"
+    },
+    {
+      "from": "qac",
+      "depth": 3,
+      "expand-from": ["C"],
+      "expand-to": ["cC"],
+      "to": "qac1"
+    },
+    {
+      "from": "qac1",
+      "depth": 1,
+      "expand-from": ["A"],
+      "expand-to": ["aA"],
+      "to": "qac"
+    },
+    {
+      "from": "qac",
+      "depth": 3,
+      "expand-from": ["C"],
+      "expand-to": ["c"],
+      "to": "qac1"
+    },
+    {
+      "from": "qac1",
+      "depth": 1,
+      "expand-from": ["A"],
+      "expand-to": ["a"],
+      "to": "qbd"
+    },
+    {
+      "from": "qbd",
+      "depth": 2,
+      "expand-from": ["D"],
+      "expand-to": ["dD"],
+      "to": "qbd1"
+    },
+    {
+      "from": "qbd1",
+      "depth": 1,
+      "expand-from": ["B"],
+      "expand-to": ["bB"],
+      "to": "qbd"
+    },
+    {
+      "from": "qbd",
+      "depth": 2,
+      "expand-from": ["D"],
+      "expand-to": ["d"],
+      "to": "qbd1"
+    },
+    {
+      "from": "qbd1",
+      "depth": 1,
+      "expand-from": ["B"],
+      "expand-to": ["b"],
+      "to": "qf"
+    }
+  ]
+}

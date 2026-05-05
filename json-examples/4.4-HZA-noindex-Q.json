@@ -9,7 +9,6 @@
   "F": ["f"],
   "rules": [
     {
-      "comment": "1: 1sS -> q ABC",
       "from": "s",
       "depth": 1,
       "expand-from": ["S"],
@@ -17,7 +16,6 @@
       "to": "q"
     },
     {
-      "comment": "2: 1qA -> q aAb  (generuj dalsi par a..b)",
       "from": "q",
       "depth": 1,
       "expand-from": ["A"],
@@ -25,7 +23,6 @@
       "to": "q"
     },
     {
-      "comment": "3: 1qA -> f ab  (posledni iterace)",
       "from": "q",
       "depth": 1,
       "expand-from": ["A"],
@@ -33,7 +30,6 @@
       "to": "f"
     },
     {
-      "comment": "4: 2qB -> q cBd  (generuj dalsi par c..d)",
       "from": "q",
       "depth": 2,
       "expand-from": ["B"],
@@ -41,7 +37,6 @@
       "to": "q"
     },
     {
-      "comment": "5: 3qC -> q eCf  (generuj dalsi par e..f)",
       "from": "q",
       "depth": 3,
       "expand-from": ["C"],
@@ -49,7 +44,6 @@
       "to": "q"
     },
     {
-      "comment": "6: 1fB -> f cd",
       "from": "f",
       "depth": 1,
       "expand-from": ["B"],
@@ -57,7 +51,6 @@
       "to": "f"
     },
     {
-      "comment": "7: 1fC -> f ef",
       "from": "f",
       "depth": 1,
       "expand-from": ["C"],

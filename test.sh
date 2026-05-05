@@ -5,7 +5,15 @@
 # Proměnná JSON_DIR níže určuje adresář s JSON soubory.
 # =============================================================================
 
-JSON_DIR="json-examples"        # <-- změňte dle potřeby
+
+# Testy pro validaci uživatelského vstupu.
+# Vygenerováno s pomocí Claude Sonnet 4.6 (Anthropic) dne 21.4.2026.
+# Prompt: "Vytvoř testy pro json-examples odděleně pro soubory začínající číslem 1,2 atd..."
+# následně byly specifikovány požadavky na testované jazyky pro každou skupinu testů
+
+
+
+JSON_DIR="json-examples"
 AUTOMATON="./automaton"
 
 # Barvy (vypnou se automaticky pokud stdout není terminál)
@@ -28,7 +36,7 @@ repeat_sym() {
         local sym=$1; local count=$2; shift 2
         for ((i=0; i<count; i++)); do parts+=("$sym"); done
     done
-    local IFS=','; echo "{${parts[*]}}"
+    local IFS=','; echo "${parts[*]}"
 }
 
 # Generuje výraz se střídajícími se operátory: l, l+l, l+l*l, l+l*l+l, ...
@@ -40,7 +48,7 @@ parts=['l']
 for i in range(count-1):
     parts.append(ops[i % len(ops)])
     parts.append('l')
-print('{' + ','.join(parts) + '}')
+print(','.join(parts))
 "
 }
 
@@ -104,13 +112,14 @@ for n in 1 2 3 4 5 6 7 8 9 10; do
 done
 
 # -----------------------------------------------------------------------------
-section "2.1-CPHZA  &  2.2-VRCPHZA   │  L = { a^n b^m c^n d^m | n,m ≥ 1 }"
+section "2.1-CPHZA  &  2.2-VRCPHZA  &  2.3-HZA   │  L = { a^n b^m c^n d^m | n,m ≥ 1 }"
 # -----------------------------------------------------------------------------
 for n in 1 2 3 4 5 6 7 8; do
     for m in 1 2 3 4 5 6 7 8; do
         inp=$(repeat_sym a $n b $m c $n d $m)
         run "$JSON_DIR/2.1-CPHZA.json"   "n=$n m=$m  $inp" "$inp"
         run "$JSON_DIR/2.2-VRCPHZA.json" "n=$n m=$m  $inp" "$inp"
+        run "$JSON_DIR/2.3-HZA.json" "n=$n m=$m  $inp" "$inp"
     done
 done
 

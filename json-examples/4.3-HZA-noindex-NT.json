@@ -9,7 +9,6 @@
   "F": ["qf"],
   "rules": [
     {
-      "comment": "1: 1sS -> q1 AAA",
       "from": "s",
       "depth": 1,
       "expand-from": ["S"],
@@ -17,7 +16,6 @@
       "to": "q1"
     },
     {
-      "comment": "2: 1q1A -> q2 aAb",
       "from": "q1",
       "depth": 1,
       "expand-from": ["A"],
@@ -25,7 +23,6 @@
       "to": "q2"
     },
     {
-      "comment": "3: 1q1A -> qf ab  (posledni iterace)",
       "from": "q1",
       "depth": 1,
       "expand-from": ["A"],
@@ -33,7 +30,6 @@
       "to": "qf"
     },
     {
-      "comment": "4: 2q2A -> q3 cAd",
       "from": "q2",
       "depth": 2,
       "expand-from": ["A"],
@@ -41,7 +37,6 @@
       "to": "q3"
     },
     {
-      "comment": "5: 3q3A -> q1 eAf",
       "from": "q3",
       "depth": 3,
       "expand-from": ["A"],
@@ -49,7 +44,6 @@
       "to": "q1"
     },
     {
-      "comment": "6: 1qfA -> qf cd",
       "from": "qf",
       "depth": 1,
       "expand-from": ["A"],
@@ -57,7 +51,6 @@
       "to": "qf"
     },
     {
-      "comment": "7: 1qfA -> qf ef",
       "from": "qf",
       "depth": 1,
       "expand-from": ["A"],

@@ -9,7 +9,6 @@
   "F": ["f"],
   "rules": [
     {
-      "comment": "1: 1sS -> q AAA",
       "from": "s",
       "depth": 1,
       "expand-from": ["S"],
@@ -17,7 +16,6 @@
       "to": "q"
     },
     {
-      "comment": "2: 1qA -> q aAb",
       "from": "q",
       "depth": 1,
       "expand-from": ["A"],
@@ -25,7 +23,6 @@
       "to": "q"
     },
     {
-      "comment": "3: 1qA -> f ab",
       "from": "q",
       "depth": 1,
       "expand-from": ["A"],
@@ -33,7 +30,6 @@
       "to": "f"
     },
     {
-      "comment": "4: 2qA -> q cAd",
       "from": "q",
       "depth": 2,
       "expand-from": ["A"],
@@ -41,7 +37,6 @@
       "to": "q"
     },
     {
-      "comment": "5: 3qA -> q eAf",
       "from": "q",
       "depth": 3,
       "expand-from": ["A"],
@@ -49,7 +44,6 @@
       "to": "q"
     },
     {
-      "comment": "6: 1fA -> f cd  (nedeterminismus - taktez muze byt ef)",
       "from": "f",
       "depth": 1,
       "expand-from": ["A"],
@@ -57,7 +51,6 @@
       "to": "f"
     },
     {
-      "comment": "7: 1fA -> f ef  (nedeterminismus - taktez muze byt cd)",
       "from": "f",
       "depth": 1,
       "expand-from": ["A"],

@@ -37,18 +37,18 @@ void printNextCFG(const Configuration& cfg, const std::vector<std::string>& inpu
 
 void printRule(const Rule& r, size_t index, AutomatonType type) {
     std::cout << "[" << (index + 1) << ": ";
- 
+
     bool is_hza_style = (type == AutomatonType::HZA || type == AutomatonType::LHZA);
- 
+
     if (is_hza_style) {
         // HZA / LHZA
         std::cout << r.depths[0] << r.from << r.expand_from[0];
- 
+
         // lookahead u LHZA: hloubka vstupu + vstupni symbol za symbolem zasobniku
         if (r.lookahead_depth.has_value() && r.lookahead_symbol.has_value()) {
             std::cout << r.lookahead_depth.value() << r.lookahead_symbol.value();
         }
- 
+
         std::cout << " -> " << r.to;
  
         // expand-to: vsechny symboly spojene dohromady
@@ -58,25 +58,25 @@ void printRule(const Rule& r, size_t index, AutomatonType type) {
     } else {
         // CPHZA / VRCPHZA
         std::cout << r.from;
- 
+
         // vstupni symbol u VRCPHZA
         if (r.input.has_value()) {
             std::cout << r.input.value();
         }
- 
+
         std::cout << "(";
         for (size_t i = 0; i < r.depths.size(); ++i) {
             if (i > 0) { std::cout << ","; }
             std::cout << r.depths[i] << r.expand_from[i];
         }
- 
+
         std::cout << ") -> " << r.to << "(";
- 
+
         for (size_t i = 0; i < r.expand_to.size(); ++i) {
             if (i > 0) { std::cout << ","; }
             std::cout << r.expand_to[i];
         }
- 
+
         std::cout << ")";
     }
     std::cout << "]";

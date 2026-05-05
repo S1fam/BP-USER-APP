@@ -22,8 +22,8 @@ $(BUILD)/%.o: %.cpp
 clean:
 	rm -rf $(BUILD) $(TARGET)
 
-INPUT := "{a,a,b,b,c,c}"
+INPUT := "a,a,b,b,c,c"
 run: all
-	./$(TARGET) json-examples/HZA.json $(INPUT)
+	./$(TARGET) json-examples/1.1-HZA.json $(INPUT)
 
 .PHONY: all clean run

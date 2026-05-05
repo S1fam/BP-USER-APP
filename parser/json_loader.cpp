@@ -71,7 +71,7 @@ Automaton JsonLoader::loadFromFile(const std::string& filename) {
         r.expand_from = rule.at("expand-from").get<std::vector<std::string>>();
         r.expand_to = rule.at("expand-to").get<std::vector<std::string>>();
 
-        // lookahead - volitelne, oba klice musi byt pritomny zaroven (pouze pro LHZA)
+        // lookahead - oba klice musi byt pritomny zaroven (LHZA)
         if (rule.contains("input-depth") && rule.contains("lookahead")) {
             if (!rule.at("input-depth").is_null() && !rule.at("lookahead").is_null()) {
                 r.lookahead_depth = rule.at("input-depth").get<size_t>();

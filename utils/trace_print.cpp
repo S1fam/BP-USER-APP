@@ -36,8 +36,7 @@ void printTrace(const Configuration& cfg, const std::vector<std::string>& input,
         }
 
         // konfigurace
-        std::cout << "("
-                  << c->state << ", ";
+        std::cout << "(" << c->state << ", ";
         printRemainingInput(input, c->input_pos);
         std::cout << ", ";
         printStack(c->stack);

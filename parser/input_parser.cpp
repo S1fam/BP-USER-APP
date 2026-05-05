@@ -5,10 +5,6 @@
 std::vector<std::string> parseInputWord(const std::string& raw) {
     std::string s = raw;
 
-    // odstraneni { }
-    if (!s.empty() && s.front() == '{') s.erase(0, 1);
-    if (!s.empty() && s.back() == '}') s.pop_back();
-
     std::vector<std::string> result;
     std::stringstream ss(s);
     std::string token;

@@ -1,230 +1,234 @@
 #include "bfs_simulator.h"
 #include "pretty_print.h"
-#include <vector>
 #include <queue>
 #include <iostream>
 #include <unordered_set>
 
-// konstruktor
+static std::optional<size_t> findNthNonterminalIndex(const std::vector<std::string>& stack, 
+                                                     size_t depth, const Automaton& A);
+static size_t hashConfiguration(const Configuration& cfg);
+static bool checkState(const Configuration& cfg, const Rule& rule);
+static bool checkInputSymbol(const Configuration& cfg, const Rule& rule, const std::vector<std::string>& input);
+static bool checkLookahead(const Configuration& cfg, const Rule& rule, const std::vector<std::string>& input);
+static bool checkDepths(const Configuration& cfg, const Rule& rule);
+static std::optional<std::vector<size_t>> computeIndices(const Configuration& cfg, const Rule& rule, 
+                                                         const Automaton& A);
+static std::vector<std::string> buildNewStack(const std::vector<std::string>& stack, const Rule& rule,
+                                              const std::vector<size_t>& indices);
+
 BFSSimulator::BFSSimulator(const Automaton& automaton, const std::vector<std::string>& input,
                            const SimulationOptions& options)
     : A(automaton), input(input), options(options) {}
 
-// aplikace jednoho pravidla
-std::optional<Configuration> BFSSimulator::applyRule(const Configuration& config, size_t ruleIndex) const {
-    const Rule& rule = A.rules[ruleIndex];
-
-    // kontrola stavu
-    if (config.state != rule.from) {
-        return std::nullopt; // pokud nelze pravidlo aplikovat
-    }
-
-    // kontrola inputu (VRCPHZA)
-    size_t new_input_position = config.input_pos;
-    if (rule.input.has_value()) { // pokud pravidlo neocekava epsilon vstup
-        if (config.input_pos >= input.size()) {
-            return std::nullopt; // pokud je vstup spotrebovany (vstup je epsilon)
-        }
-        if (input[config.input_pos] != rule.input.value()) {
-            return std::nullopt; // pokud vstupni symbol neodpovida vstupu pravidla
-        }
-    }
-
-    // kontrola lookaheadu (LHZA): input-depth k, lookahead symbol a
-    // pravidlo se aplikuje, pokud input[input_pos + k - 1] == a
-    // pravidlo bez lookaheadu se aplikuje vzdy (lookahead je volitelny)
-    if (rule.lookahead_depth.has_value() && rule.lookahead_symbol.has_value()) {
-        size_t k = rule.lookahead_depth.value();
-        size_t look_pos = config.input_pos + k - 1; // k=1 znamena aktualni symbol
-        if (look_pos >= input.size()) {
-            return std::nullopt; // pozice lookaheadu je za koncem vstupu
-        }
-        if (input[look_pos] != rule.lookahead_symbol.value()) {
-            return std::nullopt; // ocekavany symbol neodpovida
-        }
-    }
-
-    // kontrola hloubek
-    for (size_t d : rule.depths) {
-        if (d == 0 || d > config.stack.size()) {
-            return std::nullopt;
-        }
-    }
-
-    // kontrola expand-from (vrchol = vlevo)
-    for (size_t i = 0; i < rule.depths.size(); ++i) {
-        auto idx = findNthNonterminalIndex(config.stack, rule.depths[i], A);
-        if (!idx.has_value()) { return std::nullopt; }
-        if (config.stack[*idx] != rule.expand_from[i]) { return std::nullopt; }
-    }
-
-
-    // prepis od nejvetsi hloubky
-    // spocitame vsechny indexy
-    std::vector<size_t> indices;
-    for (size_t i = 0; i < rule.depths.size(); ++i) {
-        auto idx = findNthNonterminalIndex(config.stack, rule.depths[i], A);
-        if (!idx || config.stack[*idx] != rule.expand_from[i]) {
-            return std::nullopt;
-        }
-        indices.push_back(*idx);
-    }
-
-    // vytvoreni nove konfigurace
-    std::vector<std::string> newStack = config.stack;
-    // prepis od nejvetsiho indexu
-    for (int i = (int)indices.size() - 1; i >= 0; --i) {
-        size_t index = indices[i];
-        newStack.erase(newStack.begin() + index);
- 
-        const std::string& w = rule.expand_to[i];
-        for (auto it = w.rbegin(); it != w.rend(); ++it) {
-            newStack.insert(newStack.begin() + index, std::string(1, *it));
-        }
-    }
-
-
-    Configuration next;
-    next.state = rule.to;
-    next.input_pos = new_input_position;
-    next.stack = std::move(newStack);
-    next.parent = std::make_shared<Configuration>(config);
-    next.applied_rule = ruleIndex;
-    next.step_type = StepType::Expand;
-    return next;
-}
-
 void BFSSimulator::run() {
     std::queue<Configuration> q;
     std::unordered_set<size_t> visited;
-    size_t processed = 0;
-    size_t pop_steps = 0;
+    size_t processed    = 0;
+    size_t pop_steps    = 0;
     size_t expand_steps = 0;
 
-    // pocatecni konfigurace
-    Configuration start;
-    start.state = A.s;
-    start.input_pos = 0;
-    start.stack = { A.S, "#" };   // vrchol = A.S
-    start.parent = nullptr;
-    start.applied_rule = SIZE_MAX;
-
-    q.push(start);
+    q.push(makeStartConfig());
 
     while (!q.empty()) {
-        Configuration cfg = q.front(); // zkoumana konfigurace se vezme z pocatku fronty
+        Configuration cfg = q.front();
         q.pop();
 
         size_t key = hashConfiguration(cfg);
-        if (visited.find(key) != visited.end()) { // pokud key je ve visited
-            continue; // pokracujeme na dalsi konfiguraci
-        }
-        visited.insert(key);
+        if (!visited.insert(key).second) continue;
 
         processed++;
-        if (cfg.step_type == StepType::Pop) pop_steps++;
-        else if (cfg.step_type == StepType::Expand) expand_steps++;
+        if (cfg.step_type == StepType::Pop)    pop_steps++;
+        if (cfg.step_type == StepType::Expand) expand_steps++;
+
         if (processed >= options.limit) {
-            if (options.verbose) {
-                std::cerr << "Configurations visited: " << processed
-                          << " (pop: " << pop_steps
-                          << ", expand: " << expand_steps << ")\n";
-            }
+            printStats(processed, pop_steps, expand_steps);
             std::cout << "REJECT (limit reached)\n";
             return;
         }
 
-        if (options.debug) {
-            printCFG(cfg, input);
-        }
+        if (options.debug) printCFG(cfg, input);
 
-        // ACCEPT
-        if ((cfg.input_pos == input.size()) && (A.F.find(cfg.state) != A.F.end())
-        && (cfg.stack.size() == 1) && (cfg.stack.front() == "#")) {
+        if (cfg.input_pos == input.size() && A.F.count(cfg.state)
+            && cfg.stack.size() == 1 && cfg.stack.front() == "#") {
             printTrace(cfg, input, A);
-            if (options.verbose) {
-                std::cerr << "Configurations visited: " << processed
-                          << " (pop: " << pop_steps
-                          << ", expand: " << expand_steps << ")\n";
-            }
+            printStats(processed, pop_steps, expand_steps);
             std::cout << "ACCEPT\n";
             return;
         }
 
-        // terminalni krok (pop): ma prednost pred expanzemi.
-        // pokud vrchol zasobniku == aktualni vstupni symbol, jedina mozna akce je pop.
-        // expanze se v takovem pripade vubec nezkousi.
-        bool did_pop = false;
-        if (!cfg.stack.empty() && cfg.input_pos < input.size()) {
-            const std::string& top = cfg.stack.front();
-            if (top != "#" &&
-                A.Sigma.find(top) != A.Sigma.end() &&
-                top == input[cfg.input_pos]) {
-
-                Configuration next = cfg;
-                next.stack.erase(next.stack.begin());
-                next.input_pos++;
-                next.parent = std::make_shared<Configuration>(cfg);
-                next.applied_rule = SIZE_MAX;
-                next.step_type = StepType::Pop;
-
-                if (options.debug) {
-                    std::cout << "terminal step";
-                    printNextCFG(next, input);
-                }
-
-                q.push(next);
-                did_pop = true;
-            }
-        }
-
-        // expanzni kroky - pouze pokud nebyl proveden pop
-        if (!did_pop) {
-            for (size_t i = 0; i < A.rules.size(); ++i) {
-                auto next = applyRule(cfg, i);
-                if (next.has_value()) {
-                    if (options.debug) {
-                        printRule(A.rules[i], i, A.type);
-                        printNextCFG(*next, input);
-                    }
-                    q.push(next.value());
-                }
-            }
+        // pop ma prednost – pokud byl proveden, expanze se preskoci
+        if (!tryPopStep(cfg, q)) {
+            tryExpandSteps(cfg, q);
         }
     }
 
+    printStats(processed, pop_steps, expand_steps);
+    std::cout << "REJECT\n";
+}
+
+Configuration BFSSimulator::makeStartConfig() const {
+    Configuration start;
+    start.state        = A.s;
+    start.input_pos    = 0;
+    start.stack        = { A.S, "#" };
+    start.parent       = nullptr;
+    start.applied_rule = SIZE_MAX;
+    start.step_type    = StepType::Start;
+    return start;
+}
+
+bool BFSSimulator::tryPopStep(const Configuration& cfg, std::queue<Configuration>& q) const {
+    if (cfg.stack.empty() || cfg.input_pos >= input.size()) return false;
+
+    const std::string& top = cfg.stack.front();
+    bool isMatchingTerminal = top != "#" && A.Sigma.count(top) && top == input[cfg.input_pos];
+    if (!isMatchingTerminal) return false;
+
+    Configuration next = cfg;
+    next.stack.erase(next.stack.begin());
+    next.input_pos++;
+    next.parent       = std::make_shared<Configuration>(cfg);
+    next.applied_rule = SIZE_MAX;
+    next.step_type    = StepType::Pop;
+ 
+    if (options.debug) {
+        std::cout << "terminal step";
+        printNextCFG(next, input);
+    }
+
+    q.push(std::move(next));
+    return true;
+}
+
+void BFSSimulator::tryExpandSteps(const Configuration& cfg, std::queue<Configuration>& q) const {
+    for (size_t i = 0; i < A.rules.size(); ++i) {
+        auto next = applyRule(cfg, i);
+        if (!next.has_value()) continue;
+
+        if (options.debug) {
+            printRule(A.rules[i], i, A.type);
+            printNextCFG(*next, input);
+        }
+
+        q.push(std::move(*next));
+    }
+}
+
+std::optional<Configuration> BFSSimulator::applyRule(const Configuration& cfg, size_t ruleIndex) const {
+    const Rule& rule = A.rules[ruleIndex];
+
+    if (!checkState(cfg, rule)) return std::nullopt;
+
+    if (!checkInputSymbol(cfg, rule, input)) return std::nullopt; // VRCPHZA
+
+    if (!checkLookahead(cfg, rule, input)) return std::nullopt; // LHZA
+    if (!checkDepths(cfg, rule)) return std::nullopt;
+
+    auto indices = computeIndices(cfg, rule, A);
+    if (!indices.has_value()) return std::nullopt;
+
+    Configuration next;
+    next.state        = rule.to;
+    next.input_pos    = cfg.input_pos;
+    next.stack        = buildNewStack(cfg.stack, rule, *indices);
+    next.parent       = std::make_shared<Configuration>(cfg);
+    next.applied_rule = ruleIndex;
+    next.step_type    = StepType::Expand;
+    return next;
+}
+
+void BFSSimulator::printStats(size_t processed, size_t pop_steps, size_t expand_steps) const {
     if (options.verbose) {
         std::cerr << "Configurations visited: " << processed
                   << " (pop: " << pop_steps
                   << ", expand: " << expand_steps << ")\n";
     }
-    std::cout << "REJECT\n"; // pokud jsme v cyklu neprijali vstup
 }
 
-std::optional<size_t> // hledame index v zasobniku od vrcholu, kde se nachazi neterminal hloubky depth
+static std::optional<size_t>
 findNthNonterminalIndex(const std::vector<std::string>& stack, size_t depth, const Automaton& A) {
     size_t count = 0;
     for (size_t i = 0; i < stack.size(); ++i) {
         const std::string& s = stack[i];
- 
-        // neterminal je v Gamma (je nevstupni/neterminal), neni v Sigma (vstupni/terminal), neni #
-        if (s != "#" && A.Gamma.find(s) != A.Gamma.end() && A.Sigma.find(s) == A.Sigma.end()) {
-            count++;
-            if (count == depth) {
-                return i; // index
-            }
+        // neterminal: je v Gamma, neni v Sigma, neni dno zasobniku
+        if (s != "#" && A.Gamma.count(s) && !A.Sigma.count(s)) {
+            if (++count == depth) return i;
         }
     }
-    return std::nullopt; // neni tolik neterminalu
+    return std::nullopt;
 }
 
-// abychom dvakrat nezkoumali stejnou konfiguraci, budeme si uladat hash konfigurace
-size_t hashConfiguration(const Configuration& cfg) {
+/**
+ * @brief Hashovací funkce pro konfiguraci automatu.
+ * 
+ * Implementace využívá algoritmus kombinování hashů inspirovaný knihovnou Boost 
+ * (boost::hash_combine) pro dosažení rovnoměrné distribuce.
+ * 
+ * Převzato a upraveno z: https://www.boost.org/doc/libs/latest/libs/container_hash/doc/html/hash.html
+ * ke zdroji bylo přistoupeno 05.05.2026.
+ */
+static size_t hashConfiguration(const Configuration& cfg) {
     size_t h = std::hash<std::string>{}(cfg.state);
-    h ^= std::hash<size_t>{}(cfg.input_pos) + 0x9e3779b9 + (h<<6) + (h>>2);
- 
+    h ^= std::hash<size_t>{}(cfg.input_pos) + 0x9e3779b9 + (h << 6) + (h >> 2);
     for (const auto& s : cfg.stack) {
-        h ^= std::hash<std::string>{}(s) + 0x9e3779b9 + (h<<6) + (h>>2);
+        h ^= std::hash<std::string>{}(s) + 0x9e3779b9 + (h << 6) + (h >> 2);
     }
     return h;
+}
+
+static bool checkState(const Configuration& cfg, const Rule& rule) {
+    return cfg.state == rule.from;
+}
+
+// Zkontroluje vstupni symbol (pouze VRCPHZA).
+static bool checkInputSymbol(const Configuration& cfg, const Rule& rule, const std::vector<std::string>& input) {
+    if (!rule.input.has_value()) return true; // zadna vstupni podminka
+    if (cfg.input_pos >= input.size()) return false;
+    return input[cfg.input_pos] == rule.input.value();
+}
+
+// Zkontroluje lookahead (pouze LHZA). Vraci false pokud podminka nesplnena.
+static bool checkLookahead(const Configuration& cfg, const Rule& rule, const std::vector<std::string>& input) {
+    if (!rule.lookahead_depth.has_value() || !rule.lookahead_symbol.has_value()) return true;
+    size_t lookPos = cfg.input_pos + rule.lookahead_depth.value() - 1; // k=1 = aktualni symbol
+    if (lookPos >= input.size()) return false;
+    return input[lookPos] == rule.lookahead_symbol.value();
+}
+
+// Overi, ze vsechny hloubky jsou v mezich zasobniku.
+static bool checkDepths(const Configuration& cfg, const Rule& rule) {
+    for (size_t d : rule.depths) {
+        if (d == 0 || d > cfg.stack.size()) return false;
+    }
+    return true;
+}
+
+// Najde indexy vsech prepisovanych neterminalu a overi jejich symboly.
+// Vraci vektor indexu, nebo nullopt pri neshodne podmince.
+static std::optional<std::vector<size_t>>
+computeIndices(const Configuration& cfg, const Rule& rule, const Automaton& A) {
+    std::vector<size_t> indices;
+    for (size_t i = 0; i < rule.depths.size(); ++i) {
+        auto idx = findNthNonterminalIndex(cfg.stack, rule.depths[i], A);
+        if (!idx.has_value()) return std::nullopt;
+        if (cfg.stack[*idx] != rule.expand_from[i]) return std::nullopt;
+        indices.push_back(*idx);
+    }
+    return indices;
+}
+
+// Provede prepis zasobniku dle pravidla. Prepis probiha od nejvetsiho indexu.
+static std::vector<std::string>
+buildNewStack(const std::vector<std::string>& stack, const Rule& rule,
+              const std::vector<size_t>& indices) {
+    std::vector<std::string> newStack = stack;
+    for (int i = (int)indices.size() - 1; i >= 0; --i) {
+        size_t idx = indices[i];
+        newStack.erase(newStack.begin() + idx);
+        const std::string& replacement = rule.expand_to[i];
+        for (auto it = replacement.rbegin(); it != replacement.rend(); ++it) {
+            newStack.insert(newStack.begin() + idx, std::string(1, *it));
+        }
+    }
+    return newStack;
 }
