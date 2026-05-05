@@ -1,8 +1,8 @@
 CXX      := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra -g -O0
-INCLUDES := -Iexternal/include -Imodel -Iparser -Isimulator -Ivalidator -Iutils
+INCLUDES := -Iexternal/include -Imodel -Iparser -Isimulator -Ivalidator -Iutils -Icli
 
-SRC_DIRS := model parser simulator validator utils .
+SRC_DIRS := model parser simulator validator utils cli .
 BUILD    := build
 
 SRCS := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.cpp))

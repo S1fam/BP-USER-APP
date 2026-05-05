@@ -6,13 +6,14 @@
 #include <unordered_set>
 
 // konstruktor
-BFSSimulator::BFSSimulator(const Automaton& automaton, const std::vector<std::string>& input, bool verbose, bool debug)
-    : A(automaton), input(input), verbose(verbose), debug(debug) {}
+BFSSimulator::BFSSimulator(const Automaton& automaton, const std::vector<std::string>& input,
+                           const SimulationOptions& options)
+    : A(automaton), input(input), options(options) {}
 
 // aplikace jednoho pravidla
 std::optional<Configuration> BFSSimulator::applyRule(const Configuration& config, size_t ruleIndex) const {
     const Rule& rule = A.rules[ruleIndex];
-    
+
     // kontrola stavu
     if (config.state != rule.from) {
         return std::nullopt; // pokud nelze pravidlo aplikovat
@@ -75,7 +76,7 @@ std::optional<Configuration> BFSSimulator::applyRule(const Configuration& config
     for (int i = (int)indices.size() - 1; i >= 0; --i) {
         size_t index = indices[i];
         newStack.erase(newStack.begin() + index);
-
+ 
         const std::string& w = rule.expand_to[i];
         for (auto it = w.rbegin(); it != w.rend(); ++it) {
             newStack.insert(newStack.begin() + index, std::string(1, *it));
@@ -96,8 +97,6 @@ std::optional<Configuration> BFSSimulator::applyRule(const Configuration& config
 void BFSSimulator::run() {
     std::queue<Configuration> q;
     std::unordered_set<size_t> visited;
-    // limit poctu navstivenych konfiguraci
-    constexpr size_t LIMIT = 50000; // 25000-50000 - rozumne z casoveho hlediska pro nevalidni slova
     size_t processed = 0;
     size_t pop_steps = 0;
     size_t expand_steps = 0;
@@ -125,8 +124,8 @@ void BFSSimulator::run() {
         processed++;
         if (cfg.step_type == StepType::Pop) pop_steps++;
         else if (cfg.step_type == StepType::Expand) expand_steps++;
-        if (processed >= LIMIT) {
-            if (verbose) {
+        if (processed >= options.limit) {
+            if (options.verbose) {
                 std::cerr << "Configurations visited: " << processed
                           << " (pop: " << pop_steps
                           << ", expand: " << expand_steps << ")\n";
@@ -134,16 +133,16 @@ void BFSSimulator::run() {
             std::cout << "REJECT (limit reached)\n";
             return;
         }
- 
-        if (debug) {
+
+        if (options.debug) {
             printCFG(cfg, input);
         }
- 
+
         // ACCEPT
         if ((cfg.input_pos == input.size()) && (A.F.find(cfg.state) != A.F.end())
         && (cfg.stack.size() == 1) && (cfg.stack.front() == "#")) {
             printTrace(cfg, input, A);
-            if (verbose) {
+            if (options.verbose) {
                 std::cerr << "Configurations visited: " << processed
                           << " (pop: " << pop_steps
                           << ", expand: " << expand_steps << ")\n";
@@ -151,7 +150,7 @@ void BFSSimulator::run() {
             std::cout << "ACCEPT\n";
             return;
         }
- 
+
         // terminalni krok (pop): ma prednost pred expanzemi.
         // pokud vrchol zasobniku == aktualni vstupni symbol, jedina mozna akce je pop.
         // expanze se v takovem pripade vubec nezkousi.
@@ -169,7 +168,7 @@ void BFSSimulator::run() {
                 next.applied_rule = SIZE_MAX;
                 next.step_type = StepType::Pop;
 
-                if (debug) {
+                if (options.debug) {
                     std::cout << "terminal step";
                     printNextCFG(next, input);
                 }
@@ -178,13 +177,13 @@ void BFSSimulator::run() {
                 did_pop = true;
             }
         }
- 
+
         // expanzni kroky - pouze pokud nebyl proveden pop
         if (!did_pop) {
             for (size_t i = 0; i < A.rules.size(); ++i) {
                 auto next = applyRule(cfg, i);
                 if (next.has_value()) {
-                    if (debug) {
+                    if (options.debug) {
                         printRule(A.rules[i], i, A.type);
                         printNextCFG(*next, input);
                     }
@@ -194,7 +193,7 @@ void BFSSimulator::run() {
         }
     }
 
-    if (verbose) {
+    if (options.verbose) {
         std::cerr << "Configurations visited: " << processed
                   << " (pop: " << pop_steps
                   << ", expand: " << expand_steps << ")\n";
@@ -207,7 +206,7 @@ findNthNonterminalIndex(const std::vector<std::string>& stack, size_t depth, con
     size_t count = 0;
     for (size_t i = 0; i < stack.size(); ++i) {
         const std::string& s = stack[i];
-
+ 
         // neterminal je v Gamma (je nevstupni/neterminal), neni v Sigma (vstupni/terminal), neni #
         if (s != "#" && A.Gamma.find(s) != A.Gamma.end() && A.Sigma.find(s) == A.Sigma.end()) {
             count++;
@@ -223,7 +222,7 @@ findNthNonterminalIndex(const std::vector<std::string>& stack, size_t depth, con
 size_t hashConfiguration(const Configuration& cfg) {
     size_t h = std::hash<std::string>{}(cfg.state);
     h ^= std::hash<size_t>{}(cfg.input_pos) + 0x9e3779b9 + (h<<6) + (h>>2);
-
+ 
     for (const auto& s : cfg.stack) {
         h ^= std::hash<std::string>{}(s) + 0x9e3779b9 + (h<<6) + (h>>2);
     }
