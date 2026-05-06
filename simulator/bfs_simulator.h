@@ -20,12 +20,7 @@ private:
     SimulationOptions options;
 
     Configuration makeStartConfig() const;
-
-    // Pokusi se provest pop-krok. Vraci true pokud byl pop proveden.
     bool tryPopStep(const Configuration& cfg, std::queue<Configuration>& q) const;
-
-    // Zkusi aplikovat vsechna pravidla a vysledky prida do fronty.
     void tryExpandSteps(const Configuration& cfg, std::queue<Configuration>& q) const;
-
     void printStats(size_t processed, size_t pop_steps, size_t expand_steps) const;
 };
