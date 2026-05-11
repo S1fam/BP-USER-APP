@@ -1,3 +1,10 @@
+/**
+ * @file configuration.h
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Definice struktury pro reprezentaci konfigurace automatu
+ */
+
 #pragma once
 
 #include <string>

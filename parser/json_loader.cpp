@@ -1,4 +1,10 @@
-// nacteni automatu do struktury Automaton z json souboru
+/**
+ * @file json_loader.cpp
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Implementace nacteni automatu z JSON souboru
+ */
+
 #include "json_loader.h"
 #include "pretty_print.h"
 #include <fstream>

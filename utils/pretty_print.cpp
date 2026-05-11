@@ -1,3 +1,10 @@
+/**
+ * @file pretty_print.cpp
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Implementace funkci pro vypisovani do konzole (prezentace konfigurace, pravidel, atd.)
+ */
+
 #include "pretty_print.h"
 #include <iostream>
 

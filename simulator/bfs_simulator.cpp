@@ -1,3 +1,10 @@
+/**
+ * @file bfs_simulator.cpp
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Implementace simulace automatu pomoci prohledavani do sirky (BFS)
+ */
+
 #include "bfs_simulator.h"
 #include "pretty_print.h"
 #include <queue>

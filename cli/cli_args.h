@@ -1,3 +1,10 @@
+/**
+ * @file cli_args.h
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Definice struktury pro reprezentaci argumentu prikazove radky
+ */
+
 #pragma once
 #include <string>
 #include <iostream>

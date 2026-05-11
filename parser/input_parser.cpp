@@ -1,3 +1,10 @@
+/**
+ * @file input_parser.cpp
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Implementace parsovani vstupniho slova z prikazove radky
+ */
+
 #include "input_parser.h"
 #include <sstream>
 #include <stdexcept>

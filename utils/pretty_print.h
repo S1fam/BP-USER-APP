@@ -1,3 +1,10 @@
+/**
+ * @file pretty_print.h
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Definice funkci pro vypisovani do konzole (prezentace konfigurace, pravidel, atd.)
+ */
+
 #pragma once
 #include "configuration.h"
 #include "automaton.h"

@@ -1,3 +1,10 @@
+/**
+ * @file cli_args.cpp
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Implementace parsovani argumentu prikazove radky
+ */
+
 #include "cli_args.h"
 #include <stdexcept>
 

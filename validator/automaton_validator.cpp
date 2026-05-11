@@ -1,3 +1,10 @@
+/**
+ * @file automaton_validator.cpp
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Implementace validace automatu (kontrola spravnosti definice automatu)
+ */
+
 #include "automaton_validator.h"
 
 ValidationResult AutomatonValidator::validate(const Automaton& Automaton) {

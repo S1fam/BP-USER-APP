@@ -1,3 +1,10 @@
+/**
+ * @file trace_print.cpp
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Implementace funkce pro vypisovani prubehu vypoctu (trace) do konzole
+ */
+
 #include "trace_print.h"
 #include "pretty_print.h"
 #include <vector>

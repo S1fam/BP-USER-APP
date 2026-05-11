@@ -1,3 +1,10 @@
+/**
+ * @file automaton.h
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Definice struktury pro reprezentaci automatu
+ */
+
 #pragma once
 #include <string>
 #include <vector>

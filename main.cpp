@@ -1,3 +1,11 @@
+/**
+ * @file main.cpp
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Vstupni bod programu - zpracovani argumentu, nacteni a validace automatu, 
+ * parsovani a validace vstupniho slova, spusteni simulace
+ */
+
 #include "cli_args.h"
 #include "json_loader.h"
 #include "input_parser.h"

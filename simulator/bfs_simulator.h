@@ -1,3 +1,10 @@
+/**
+ * @file bfs_simulator.h
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Definice tridy pro simulaci automatu pomoci prohledavani do sirky (BFS)
+ */
+
 #pragma once
 #include "automaton.h"
 #include "configuration.h"

@@ -1,3 +1,10 @@
+/**
+ * @file input_validator.cpp
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Implementace validace vstupniho slova (kontrola, zda vsechny symboly ve vstupu jsou v mnozine Sigma automatu)
+ */
+
 #include "input_validator.h"
 
 InputValidationResult

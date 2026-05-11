@@ -1,3 +1,10 @@
+/**
+ * @file automaton_validator.h
+ * @author Jaroslav Ištvan (xistva03)
+ * @date 2026
+ * @brief Definice tridy pro validaci automatu (kontrola spravnosti definice automatu)
+ */
+
 #pragma once
 #include "automaton.h"
 #include <string>
