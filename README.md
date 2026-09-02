@@ -1,3 +1,6 @@
+Tento repozitář obsahuje implementaci vytvořenou v rámci bakalářské práce na téma
+[Nové typy hlubokých zásobníkových automatů](https://dspace.vut.cz/items/27071039-f05f-47d1-b8cc-f48015a2b61b).
+
 # Simulátor hloubkových zásobníkových automatů
 
 Simulátor přijímá definici automatu ve formátu JSON a vstupní slovo. Pomocí BFS prohledávání stavového prostoru rozhodne, zda automat dané slovo přijímá.
